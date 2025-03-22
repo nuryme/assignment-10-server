@@ -95,6 +95,15 @@ async function run() {
       res.send(result);
     });
 
+app.delete('/campaigns/:id', async (req, res) => {
+  const id = req.params.id
+  const query = {_id: new ObjectId(id)}
+  const result = await crowdcubeCollection.deleteOne(query)
+  res.json(result)
+}
+)
+
+
     app.get("/donations/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
