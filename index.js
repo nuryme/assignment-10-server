@@ -31,9 +31,11 @@ async function run() {
   try {
     const crowdcubeCollection = client
       .db("crowdcubeDB")
-      .collection("crowdUser");
+      .collection("campaigns");
 
-      const donationCollection = client.db('donationDB').collection('donatedUser')
+    const donationCollection = client
+      .db("crowdcubeDB")
+      .collection("donatedUser");
 
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
@@ -48,32 +50,57 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/donations', async (req, res) => {
-      const result = await donationCollection.insertOne(req.body)
-      res.send(result)
-    }
-    )
-
+    app.post("/donations", async (req, res) => {
+      const result = await donationCollection.insertOne(req.body);
+      res.send(result);
+    });
 
     app.get("/campaigns", async (req, res) => {
       const result = await crowdcubeCollection.find().toArray();
       res.send(result);
     });
 
-    app.get('donations', async (req, res) => {
-      const result = await donationCollection.find().toArray()
-      res.send(result)
-    }
-    )
+    app.get("/donations", async (req, res) => {
+      const result = await donationCollection.find().toArray();
+      res.send(result);
+    });
 
-    app.get('/campaigns/:id', async (req, res) => {
-      const id = req.params.id
-      const query = {_id: new ObjectId(id)}
-      const result = await crowdcubeCollection.findOne(query)
-      res.send(result)
-    }
-    )
+    app.get("/campaigns/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await crowdcubeCollection.findOne(query);
+      res.send(result);
+    });
 
+    app.put("/campaigns/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const data = req.body;
+      const options = { upsert: true };
+      const updatedData = {
+        $set: {
+          photo: data.photo,
+          title: data.title,
+          type: data.type,
+          description: data.description,
+          amount: data.amount,
+          deadline: data.deadline,
+        },
+      };
+      const result = await crowdcubeCollection.updateOne(
+        filter,
+        updatedData,
+        options
+      );
+      res.send(result);
+    });
+
+    app.get("/donations/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await donationCollection.findOne(query);
+      res.send(result);
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
