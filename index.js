@@ -33,6 +33,8 @@ async function run() {
       .db("crowdcubeDB")
       .collection("crowdUser");
 
+      const donationCollection = client.db('donationDB').collection('donatedUser')
+
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
@@ -46,10 +48,23 @@ async function run() {
       res.send(result);
     });
 
+    app.post('/donations', async (req, res) => {
+      const result = await donationCollection.insertOne(req.body)
+      res.send(result)
+    }
+    )
+
+
     app.get("/campaigns", async (req, res) => {
       const result = await crowdcubeCollection.find().toArray();
       res.send(result);
     });
+
+    app.get('donations', async (req, res) => {
+      const result = await donationCollection.find().toArray()
+      res.send(result)
+    }
+    )
 
     app.get('/campaigns/:id', async (req, res) => {
       const id = req.params.id
